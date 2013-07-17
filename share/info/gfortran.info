@@ -1,5 +1,5 @@
 This is doc/gfortran.info, produced by makeinfo version 4.13 from
-/media/hdd_linux/crosstool-ng/.build/src/gcc-linaro-4.8-2013.05/gcc/fortran/gfortran.texi.
+/media/hdd_linux/crosstool-ng/.build/src/gcc-linaro-4.8-2013.07/gcc/fortran/gfortran.texi.
 
 Copyright (C) 1999-2013 Free Software Foundation, Inc.
 
@@ -12574,7 +12574,10 @@ _Description_:
 
      If `RANDOM_SEED' is called without arguments, it is initialized to
      a default state. The example below shows how to initialize the
-     random seed based on the system's time.
+     random seed with a varying seed in order to ensure a different
+     random number sequence for each invocation of the program. Note
+     that setting any of the seed values to zero should be avoided as
+     it can result in poor quality random numbers being generated.
 
 _Standard_:
      Fortran 95 and later
@@ -12602,20 +12605,53 @@ _Arguments_:
                 argument.
 
 _Example_:
-          SUBROUTINE init_random_seed()
-            INTEGER :: i, n, clock
-            INTEGER, DIMENSION(:), ALLOCATABLE :: seed
+          subroutine init_random_seed()
+            implicit none
+            integer, allocatable :: seed(:)
+            integer :: i, n, un, istat, dt(8), pid, t(2), s
+            integer(8) :: count, tms
 
-            CALL RANDOM_SEED(size = n)
-            ALLOCATE(seed(n))
-
-            CALL SYSTEM_CLOCK(COUNT=clock)
-
-            seed = clock + 37 * (/ (i - 1, i = 1, n) /)
-            CALL RANDOM_SEED(PUT = seed)
-
-            DEALLOCATE(seed)
-          END SUBROUTINE
+            call random_seed(size = n)
+            allocate(seed(n))
+            ! First try if the OS provides a random number generator
+            open(newunit=un, file="/dev/urandom", access="stream", &
+                 form="unformatted", action="read", status="old", iostat=istat)
+            if (istat == 0) then
+               read(un) seed
+               close(un)
+            else
+               ! Fallback to XOR:ing the current time and pid. The PID is
+               ! useful in case one launches multiple instances of the same
+               ! program in parallel.
+               call system_clock(count)
+               if (count /= 0) then
+                  t = transfer(count, t)
+               else
+                  call date_and_time(values=dt)
+                  tms = (dt(1) - 1970) * 365_8 * 24 * 60 * 60 * 1000 &
+                       + dt(2) * 31_8 * 24 * 60 * 60 * 1000 &
+                       + dt(3) * 24 * 60 * 60 * 60 * 1000 &
+                       + dt(5) * 60 * 60 * 1000 &
+                       + dt(6) * 60 * 1000 + dt(7) * 1000 &
+                       + dt(8)
+                  t = transfer(tms, t)
+               end if
+               s = ieor(t(1), t(2))
+               pid = getpid() + 1099279 ! Add a prime
+               s = ieor(s, pid)
+               if (n >= 3) then
+                  seed(1) = t(1) + 36269
+                  seed(2) = t(2) + 72551
+                  seed(3) = pid
+                  if (n > 3) then
+                     seed(4:) = s + 37 * (/ (i, i = 0, n - 4) /)
+                  end if
+               else
+                  seed = s + 37 * (/ (i, i = 0, n - 1 ) /)
+               end if
+            end if
+            call random_seed(put=seed)
+          end subroutine init_random_seed
 
 _See also_:
      *note RANDOM_NUMBER::
@@ -18276,74 +18312,74 @@ Node: RAN418297
 Node: RAND418753
 Node: RANDOM_NUMBER420085
 Node: RANDOM_SEED421802
-Node: RANGE423688
-Node: RANK424384
-Node: REAL425165
-Node: RENAME426940
-Node: REPEAT427959
-Node: RESHAPE428685
-Node: RRSPACING430154
-Node: RSHIFT430847
-Node: SAME_TYPE_AS431985
-Node: SCALE432815
-Node: SCAN433595
-Node: SECNDS435145
-Node: SECOND436233
-Node: SELECTED_CHAR_KIND437109
-Node: SELECTED_INT_KIND438700
-Node: SELECTED_REAL_KIND439875
-Node: SET_EXPONENT442541
-Node: SHAPE443537
-Node: SHIFTA444952
-Node: SHIFTL445913
-Node: SHIFTR446748
-Node: SIGN447584
-Node: SIGNAL448868
-Node: SIN450365
-Node: SINH451463
-Node: SIZE452459
-Node: SIZEOF453767
-Node: SLEEP455242
-Node: SPACING455802
-Node: SPREAD456815
-Node: SQRT457960
-Node: SRAND459314
-Node: STAT460482
-Node: STORAGE_SIZE463649
-Node: SUM464528
-Node: SYMLNK466011
-Node: SYSTEM467143
-Node: SYSTEM_CLOCK468394
-Node: TAN470510
-Node: TANH471482
-Node: THIS_IMAGE472639
-Node: TIME474131
-Node: TIME8475256
-Node: TINY476406
-Node: TRAILZ477006
-Node: TRANSFER477823
-Node: TRANSPOSE479857
-Node: TRIM480544
-Node: TTYNAM481401
-Node: UBOUND482316
-Node: UCOBOUND483706
-Node: UMASK484838
-Node: UNLINK485516
-Node: UNPACK486493
-Node: VERIFY487781
-Node: XOR489502
-Node: Intrinsic Modules490874
-Node: ISO_FORTRAN_ENV491117
-Node: ISO_C_BINDING495269
-Node: OpenMP Modules OMP_LIB and OMP_LIB_KINDS499486
-Node: Contributing500772
-Node: Contributors501626
-Node: Projects503293
-Node: Proposed Extensions504097
-Node: Copying506108
-Node: GNU Free Documentation License543672
-Node: Funding568815
-Node: Option Index571340
-Node: Keyword Index586331
+Node: RANGE425480
+Node: RANK426176
+Node: REAL426957
+Node: RENAME428732
+Node: REPEAT429751
+Node: RESHAPE430477
+Node: RRSPACING431946
+Node: RSHIFT432639
+Node: SAME_TYPE_AS433777
+Node: SCALE434607
+Node: SCAN435387
+Node: SECNDS436937
+Node: SECOND438025
+Node: SELECTED_CHAR_KIND438901
+Node: SELECTED_INT_KIND440492
+Node: SELECTED_REAL_KIND441667
+Node: SET_EXPONENT444333
+Node: SHAPE445329
+Node: SHIFTA446744
+Node: SHIFTL447705
+Node: SHIFTR448540
+Node: SIGN449376
+Node: SIGNAL450660
+Node: SIN452157
+Node: SINH453255
+Node: SIZE454251
+Node: SIZEOF455559
+Node: SLEEP457034
+Node: SPACING457594
+Node: SPREAD458607
+Node: SQRT459752
+Node: SRAND461106
+Node: STAT462274
+Node: STORAGE_SIZE465441
+Node: SUM466320
+Node: SYMLNK467803
+Node: SYSTEM468935
+Node: SYSTEM_CLOCK470186
+Node: TAN472302
+Node: TANH473274
+Node: THIS_IMAGE474431
+Node: TIME475923
+Node: TIME8477048
+Node: TINY478198
+Node: TRAILZ478798
+Node: TRANSFER479615
+Node: TRANSPOSE481649
+Node: TRIM482336
+Node: TTYNAM483193
+Node: UBOUND484108
+Node: UCOBOUND485498
+Node: UMASK486630
+Node: UNLINK487308
+Node: UNPACK488285
+Node: VERIFY489573
+Node: XOR491294
+Node: Intrinsic Modules492666
+Node: ISO_FORTRAN_ENV492909
+Node: ISO_C_BINDING497061
+Node: OpenMP Modules OMP_LIB and OMP_LIB_KINDS501278
+Node: Contributing502564
+Node: Contributors503418
+Node: Projects505085
+Node: Proposed Extensions505889
+Node: Copying507900
+Node: GNU Free Documentation License545464
+Node: Funding570607
+Node: Option Index573132
+Node: Keyword Index588123
 
 End Tag Table

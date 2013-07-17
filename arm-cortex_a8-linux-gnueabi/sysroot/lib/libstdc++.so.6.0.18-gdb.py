@@ -19,7 +19,7 @@ import gdb
 import os
 import os.path
 
-pythondir = '/media/hdd_linux/crosstool-ng/builds/arm-cortex_a8-linux-gnueabi/share/gcc-4.8.1/python'
+pythondir = '/media/hdd_linux/crosstool-ng/builds/arm-cortex_a8-linux-gnueabi/share/gcc-4.8.2/python'
 libdir = '/media/hdd_linux/crosstool-ng/builds/arm-cortex_a8-linux-gnueabi/arm-cortex_a8-linux-gnueabi/lib'
 
 # This file might be loaded when there is no current objfile.  This
