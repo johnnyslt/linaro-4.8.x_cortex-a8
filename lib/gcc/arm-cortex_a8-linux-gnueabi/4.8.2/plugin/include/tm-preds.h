@@ -1,5 +1,5 @@
 /* Generated automatically by the program 'build/genpreds'
-   from the machine description file '/media/hdd_linux/crosstool-ng/.build/src/gcc-linaro-4.8-2013.07/gcc/config/arm/arm.md'.  */
+   from the machine description file '/media/hdd_linux/crosstool-ng/.build/src/gcc-linaro-4.8-2013.10/gcc/config/arm/arm.md'.  */
 
 #ifndef GCC_TM_PREDS_H
 #define GCC_TM_PREDS_H
@@ -24,6 +24,8 @@ extern int comparison_operator (rtx, enum machine_mode);
 extern int s_register_operand (rtx, enum machine_mode);
 extern int imm_for_neon_inv_logic_operand (rtx, enum machine_mode);
 extern int neon_inv_logic_op2 (rtx, enum machine_mode);
+extern int imm_for_neon_logic_operand (rtx, enum machine_mode);
+extern int neon_logic_op2 (rtx, enum machine_mode);
 extern int arm_hard_register_operand (rtx, enum machine_mode);
 extern int low_register_operand (rtx, enum machine_mode);
 extern int low_reg_or_int_operand (rtx, enum machine_mode);
@@ -45,6 +47,8 @@ extern int const_neon_scalar_shift_amount_operand (rtx, enum machine_mode);
 extern int ldrd_strd_offset_operand (rtx, enum machine_mode);
 extern int arm_add_operand (rtx, enum machine_mode);
 extern int arm_anddi_operand_neon (rtx, enum machine_mode);
+extern int arm_iordi_operand_neon (rtx, enum machine_mode);
+extern int arm_xordi_operand (rtx, enum machine_mode);
 extern int arm_adddi_operand (rtx, enum machine_mode);
 extern int arm_addimm_operand (rtx, enum machine_mode);
 extern int arm_not_operand (rtx, enum machine_mode);
@@ -56,6 +60,7 @@ extern int vfp_compare_operand (rtx, enum machine_mode);
 extern int arm_float_compare_operand (rtx, enum machine_mode);
 extern int index_operand (rtx, enum machine_mode);
 extern int shiftable_operator (rtx, enum machine_mode);
+extern int shiftable_operator_strict_it (rtx, enum machine_mode);
 extern int logical_binary_operator (rtx, enum machine_mode);
 extern int commutative_binary_operator (rtx, enum machine_mode);
 extern int shift_operator (rtx, enum machine_mode);
@@ -67,6 +72,7 @@ extern int expandable_comparison_operator (rtx, enum machine_mode);
 extern int arm_comparison_operator (rtx, enum machine_mode);
 extern int lt_ge_comparison_operator (rtx, enum machine_mode);
 extern int arm_vsel_comparison_operator (rtx, enum machine_mode);
+extern int arm_cond_move_operator (rtx, enum machine_mode);
 extern int noov_comparison_operator (rtx, enum machine_mode);
 extern int minmax_operator (rtx, enum machine_mode);
 extern int cc_register (rtx, enum machine_mode);
@@ -94,8 +100,6 @@ extern int imm_for_neon_lshift_operand (rtx, enum machine_mode);
 extern int imm_for_neon_rshift_operand (rtx, enum machine_mode);
 extern int imm_lshift_or_reg_neon (rtx, enum machine_mode);
 extern int imm_rshift_or_reg_neon (rtx, enum machine_mode);
-extern int imm_for_neon_logic_operand (rtx, enum machine_mode);
-extern int neon_logic_op2 (rtx, enum machine_mode);
 extern int cmpdi_operand (rtx, enum machine_mode);
 extern int arm_sync_memory_operand (rtx, enum machine_mode);
 extern int vect_par_constant_high (rtx, enum machine_mode);
@@ -105,6 +109,7 @@ extern int neon_struct_operand (rtx, enum machine_mode);
 extern int neon_struct_or_register_operand (rtx, enum machine_mode);
 extern int add_operator (rtx, enum machine_mode);
 extern int mem_noofs_operand (rtx, enum machine_mode);
+extern int call_insn_operand (rtx, enum machine_mode);
 #endif /* HAVE_MACHINE_MODES */
 
 #define CONSTRAINT_NUM_DEFINED_P 1
@@ -125,6 +130,7 @@ enum constraint_num
   CONSTRAINT_q,
   CONSTRAINT_b,
   CONSTRAINT_c,
+  CONSTRAINT_Cs,
   CONSTRAINT_I,
   CONSTRAINT_J,
   CONSTRAINT_K,
@@ -144,6 +150,7 @@ enum constraint_num
   CONSTRAINT_Pw,
   CONSTRAINT_Px,
   CONSTRAINT_Py,
+  CONSTRAINT_Pz,
   CONSTRAINT_G,
   CONSTRAINT_Dz,
   CONSTRAINT_Da,
@@ -151,6 +158,8 @@ enum constraint_num
   CONSTRAINT_Dc,
   CONSTRAINT_Dd,
   CONSTRAINT_De,
+  CONSTRAINT_Df,
+  CONSTRAINT_Dg,
   CONSTRAINT_Di,
   CONSTRAINT_Dn,
   CONSTRAINT_Dl,
@@ -159,6 +168,7 @@ enum constraint_num
   CONSTRAINT_Dv,
   CONSTRAINT_Dy,
   CONSTRAINT_Dt,
+  CONSTRAINT_Ts,
   CONSTRAINT_Ua,
   CONSTRAINT_Ut,
   CONSTRAINT_Uv,
@@ -170,6 +180,7 @@ enum constraint_num
   CONSTRAINT_Q,
   CONSTRAINT_Uu,
   CONSTRAINT_Uw,
+  CONSTRAINT_US,
   CONSTRAINT__LIMIT
 };
 
@@ -181,8 +192,10 @@ insn_constraint_len (char fc, const char *str ATTRIBUTE_UNUSED)
 {
   switch (fc)
     {
+    case 'C': return 2;
     case 'D': return 2;
     case 'P': return 2;
+    case 'T': return 2;
     case 'U': return 2;
     default: break;
     }

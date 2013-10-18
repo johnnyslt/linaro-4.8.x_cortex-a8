@@ -183,6 +183,11 @@ extern arm_cc arm_current_cc;
 
 #define ARM_INVERSE_CONDITION_CODE(X)  ((arm_cc) (((int)X) ^ 1))
 
+/* The maximaum number of instructions that is beneficial to
+   conditionally execute. */
+#undef MAX_CONDITIONAL_EXECUTE
+#define MAX_CONDITIONAL_EXECUTE arm_max_conditional_execute ()
+
 extern int arm_target_label;
 extern int arm_ccfsm_state;
 extern GTY(()) rtx arm_target_insn;
@@ -639,6 +644,8 @@ extern int prefer_neon_for_64bits;
 #define EMPTY_FIELD_BOUNDARY  32
 
 #define BIGGEST_ALIGNMENT (ARM_DOUBLEWORD_ALIGN ? DOUBLEWORD_ALIGNMENT : 32)
+
+#define MALLOC_ABI_ALIGNMENT  BIGGEST_ALIGNMENT
 
 /* XXX Blah -- this macro is used directly by libobjc.  Since it
    supports no vector modes, cut out the complexity and fall back
@@ -1140,6 +1147,7 @@ enum reg_class
   STACK_REG,
   BASE_REGS,
   HI_REGS,
+  CALLER_SAVE_REGS,
   GENERAL_REGS,
   CORE_REGS,
   VFP_D0_D7_REGS,
@@ -1166,6 +1174,7 @@ enum reg_class
   "STACK_REG",		\
   "BASE_REGS",		\
   "HI_REGS",		\
+  "CALLER_SAVE_REGS",	\
   "GENERAL_REGS",	\
   "CORE_REGS",		\
   "VFP_D0_D7_REGS",	\
@@ -1191,6 +1200,7 @@ enum reg_class
   { 0x00002000, 0x00000000, 0x00000000, 0x00000000 }, /* STACK_REG */	\
   { 0x000020FF, 0x00000000, 0x00000000, 0x00000000 }, /* BASE_REGS */	\
   { 0x00005F00, 0x00000000, 0x00000000, 0x00000000 }, /* HI_REGS */	\
+  { 0x0000100F, 0x00000000, 0x00000000, 0x00000000 }, /* CALLER_SAVE_REGS */ \
   { 0x00005FFF, 0x00000000, 0x00000000, 0x00000000 }, /* GENERAL_REGS */ \
   { 0x00007FFF, 0x00000000, 0x00000000, 0x00000000 }, /* CORE_REGS */	\
   { 0xFFFF0000, 0x00000000, 0x00000000, 0x00000000 }, /* VFP_D0_D7_REGS  */ \
